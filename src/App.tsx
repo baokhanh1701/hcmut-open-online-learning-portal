@@ -1,84 +1,35 @@
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import { Suspense, useEffect, useState } from 'react';
-import { Route, Routes, useNavigate, useSearchParams } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
 
-import { Loading } from './components';
-import { AdministratorRoute, UserRoute, LecturerRoute } from './routes';
-import { socket } from './socket';
-import useBoundStore from './store';
-import { SocketEvent } from './types';
+function App() {
+  const [count, setCount] = useState(0)
 
-import './config/firebase';
-import 'react-toastify/dist/ReactToastify.css';
-import 'react-datepicker/dist/react-datepicker.css';
-
-const App = () => {
-  const setToken = useBoundStore.use.setToken();
-  const getUserProfile = useBoundStore.use.getUserProfile();
-
-  const [loading, setLoading] = useState(true);
-
-  const [searchParams] = useSearchParams({ token: '' });
-
-  const { token: queryToken } = Object.fromEntries(searchParams);
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (
-      queryToken &&
-      queryToken !== '' &&
-      window.location.pathname.split('/')[1] === 'login' &&
-      window.location.pathname.split('/').length === 2
-    ) {
-      setToken(queryToken);
-    } else {
-      getUserProfile().then(() => {
-        setTimeout(() => setLoading(false), 1000);
-      });
-    }
-  }, [queryToken, setToken, getUserProfile]);
-
-  useEffect(() => {
-    if (queryToken && queryToken !== '') {
-      navigate('/');
-    }
-  }, [queryToken, navigate]);
-
-  useEffect(() => {
-    const onConnect = () => {
-      console.log('Connected to server socket');
-    };
-
-    const onDisconnect = () => {
-      console.log('Disconnected from server socket');
-    };
-
-    socket.on(SocketEvent.CONNECT, onConnect);
-    socket.on(SocketEvent.DISCONNECT, onDisconnect);
-
-    return () => {
-      socket.off(SocketEvent.CONNECT, onConnect);
-      socket.off(SocketEvent.DISCONNECT, onDisconnect);
-    };
-  }, []);
-
-  if (loading) return <Loading />;
   return (
     <>
-      <Suspense fallback={null}>
-        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID as string}>
-          <Routes>
-            <Route path='/admin/*' element={<AdministratorRoute />} />
-            <Route path='*' element={<UserRoute />} />
-            <Route path='/lecturer/*' element={<LecturerRoute />} />
-          </Routes>
-        </GoogleOAuthProvider>
-      </Suspense>
-      <ToastContainer position='bottom-right' draggable={false} />
+      <div>
+        <a href="https://vitejs.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.tsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
     </>
-  );
-};
+  )
+}
 
-export default App;
+export default App
